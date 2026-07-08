@@ -1,0 +1,142 @@
+{
+  "testedAt": "2026-07-07T21:00:37.777Z",
+  "network": "nile",
+  "apiKeyConfigured": false,
+  "burstRequestCount": 25,
+  "burstResults": [
+    {
+      "request": 1,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "request": 2,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "request": 3,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "request": 4,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "request": 5,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "request": 6,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "request": 7,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "request": 8,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "request": 9,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "request": 10,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "request": 11,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "request": 12,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "request": 13,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "request": 14,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "request": 15,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "request": 16,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "request": 17,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "request": 18,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "request": 19,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "request": 20,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "request": 21,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "request": 22,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "request": 23,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "request": 24,
+      "status": 200,
+      "ok": true
+    },
+    {
+      "request": 25,
+      "status": 200,
+      "ok": true
+    }
+  ],
+  "invalidAddressSample": {
+    "address": "NOT_A_VALID_ADDRESS",
+    "httpStatus": 400,
+    "body": {
+      "success": false,
+      "error": "A valid account address is required.",
+      "statusCode": 400
+    }
+  }
+}

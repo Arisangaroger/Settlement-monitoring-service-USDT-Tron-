@@ -1,0 +1,10 @@
+{
+  "theme": "base",
+  "themeVariables": {
+    "primaryColor": "#eef2f0",
+    "primaryTextColor": "#1c1917",
+    "primaryBorderColor": "#4a7c6f",
+    "lineColor": "#78716c",
+    "fontFamily": "Outfit, system-ui, sans-serif"
+  }
+}

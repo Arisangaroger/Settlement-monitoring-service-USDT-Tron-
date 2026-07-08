@@ -1,0 +1,23 @@
+{
+  "kind": "token_transfer",
+  "blockHash": "0000000003f58b485a04b80e00ea385d7258accafb62079a00ee17dff8f08656",
+  "blockNumber": 66423624,
+  "blockTimestamp": 1783470642000,
+  "txId": "f247cdd9f1ad0e383791efb12ee1bcc789da7608ec87c0cbbf7a444f9590856e",
+  "txTimestamp": 1783470636000,
+  "from": "TY7qDg91GYtwFpyieenJb2F8rUvo7VPxbt",
+  "to": "TFCJpYH7LzLSXTWFj7syybrMU4cHvuX39k",
+  "value": "1",
+  "contractAddress": "TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs",
+  "currency": "TRON",
+  "logIndex": 0,
+  "tokenMetadata": {
+    "type": "fungible",
+    "symbol": "USDT",
+    "name": "TetherToken",
+    "decimals": 6
+  },
+  "chain": "tron-testnet",
+  "subscriptionId": "6a4d991229f7e8f848b7da6a",
+  "subscriptionType": "ADDRESS_EVENT"
+}

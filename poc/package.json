@@ -1,0 +1,22 @@
+{
+  "name": "usdt-tron-monitoring-poc",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Phase 1 throwaway scripts — TRON/USDT TRC20 data exploration",
+  "scripts": {
+    "health": "tsx src/scripts/health-check.ts",
+    "fetch:raw": "tsx src/scripts/fetch-trc20-raw.ts",
+    "list:usdt": "tsx src/scripts/list-incoming-usdt.ts",
+    "confirmations": "tsx src/scripts/confirmation-by-hash.ts",
+    "test:pagination": "tsx src/scripts/test-pagination.ts",
+    "test:rate-limits": "tsx src/scripts/test-rate-limits.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7"
+  }
+}

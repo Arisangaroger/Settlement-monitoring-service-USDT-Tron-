@@ -1,0 +1,21 @@
+{
+  "_note": "Placeholder — replace with a real QuickNode webhook payload after Sub-feature 1.7.",
+  "_instructions": [
+    "1. Create a QuickNode TRON endpoint (Nile testnet).",
+    "2. Configure a Stream/Webhook pointed at https://webhook.site (temporary URL).",
+    "3. Send a test USDT transfer on Nile to your monitored wallet.",
+    "4. Copy the delivered JSON payload into this file as webhook-payload-raw.json."
+  ],
+  "exampleShapeOnly": {
+    "network": "tron-nile",
+    "eventType": "trc20_transfer",
+    "transactionHash": "4cfd9932a49304fb6b75bf4e137f7f24d62d9f82f9ef19f9f0b087bd73b69978",
+    "from": "TVF2Mp9QY7FEGTnr3DBpFLobA6jguHyMvi",
+    "to": "YOUR_MONITORED_WALLET",
+    "value": "1000000",
+    "tokenSymbol": "USDT",
+    "contractAddress": "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf",
+    "blockNumber": 68982908,
+    "blockTimestamp": 1783451436000
+  }
+}

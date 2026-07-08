@@ -1,0 +1,38 @@
+flowchart TB
+    TRON[("TRON Shasta Testnet")]
+
+    subgraph Providers["Blockchain access"]
+        TRONGRID["TronGrid API"]
+        TATUM["Tatum Notifications"]
+    end
+
+    subgraph Backend["NestJS Backend"]
+        WH["POST /api/webhooks/tron<br/>HMAC validated"]
+        RECON["Reconciliation Job<br/>every 5 min"]
+        CONF["Confirmation Updater<br/>every 12 sec"]
+        ING["IngestionService<br/>dedup on tx hash"]
+        REST["REST API + Swagger"]
+    end
+
+    subgraph Storage["PostgreSQL"]
+        MW[("monitoring_wallets")]
+        TX[("transactions")]
+        LOG[("webhook_events_log")]
+    end
+
+    DASH["Next.js Dashboard<br/>port 3001"]
+
+    TRON --> TRONGRID
+    TRON --> TATUM
+    TATUM -->|push| WH
+    TRONGRID -->|poll TRC20| RECON
+    WH --> ING
+    RECON --> ING
+    WH --> LOG
+    ING --> TX
+    ING --> MW
+    CONF --> TRONGRID
+    CONF --> TX
+    TX --> REST
+    MW --> REST
+    REST --> DASH

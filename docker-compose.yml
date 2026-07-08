@@ -1,0 +1,71 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: settlement-postgres
+    restart: unless-stopped
+    ports:
+      # Exposed for optional direct inspection (psql, Prisma Studio)
+      - "${POSTGRES_HOST_PORT:-5433}:5432"
+    environment:
+      POSTGRES_USER: settlement
+      POSTGRES_PASSWORD: settlement
+      POSTGRES_DB: settlement_monitor
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U settlement -d settlement_monitor"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: settlement-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      # Override host-local DATABASE_URL for in-network Postgres
+      DATABASE_URL: postgresql://settlement:settlement@postgres:5432/settlement_monitor?schema=public
+      NODE_ENV: production
+      PORT: 3000
+      CORS_ORIGIN: http://localhost:3001
+    ports:
+      - "${BACKEND_PORT:-3000}:3000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      start_period: 45s
+      retries: 5
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:${BACKEND_PORT:-3000}/api
+    container_name: settlement-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      PORT: 3001
+      HOSTNAME: 0.0.0.0
+    ports:
+      - "${FRONTEND_PORT:-3001}:3001"
+
+volumes:
+  postgres_data:

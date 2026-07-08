@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.env
+.env.local
+*.log
+postgres_data/
+.next/
+coverage/
+frontend/.next/
+frontend/node_modules/
+backend/dist/
+backend/node_modules/
+poc/node_modules/
+.tools/

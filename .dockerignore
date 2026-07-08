@@ -1,0 +1,13 @@
+node_modules
+**/node_modules
+.git
+.env
+.env.*
+**/.next
+**/dist
+**/coverage
+**/*.log
+poc
+postgres_data
+.cursor
+agent-transcripts

@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: settlement
+          POSTGRES_PASSWORD: settlement
+          POSTGRES_DB: settlement_monitor
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U settlement -d settlement_monitor"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            backend/package-lock.json
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install backend dependencies
+        run: npm ci --prefix backend
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Run migrations
+        env:
+          DATABASE_URL: postgresql://settlement:settlement@localhost:5432/settlement_monitor?schema=public
+        run: npx prisma migrate deploy
+
+      - name: Backend unit tests
+        run: npm run test --prefix backend
+
+      - name: Backend e2e tests
+        env:
+          DATABASE_URL: postgresql://settlement:settlement@localhost:5432/settlement_monitor?schema=public
+          TRON_NETWORK: shasta
+          MONITORED_WALLET_ADDRESS: TFCJpYH7LzLSXTWFj7syybrMU4cHvuX39k
+          TRONGRID_API_KEY: ci-placeholder
+        run: npm run test:e2e --prefix backend
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci --prefix frontend
+
+      - name: Frontend tests
+        run: npm run test --prefix frontend
+
+      - name: Frontend build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:3000/api
+        run: npm run build --prefix frontend
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build backend image
+        run: docker build -f backend/Dockerfile .
+
+      - name: Build frontend image
+        run: docker build -f frontend/Dockerfile --build-arg NEXT_PUBLIC_API_URL=http://localhost:3000/api .

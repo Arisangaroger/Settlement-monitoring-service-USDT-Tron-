@@ -1,0 +1,41 @@
+erDiagram
+    monitoring_wallets {
+        uuid id PK
+        varchar_34 address UK
+        varchar_100 label
+        boolean active
+        bigint last_synced_block
+        timestamptz last_synced_timestamp
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    transactions {
+        uuid id PK
+        uuid wallet_id FK
+        char_64 transaction_hash UK
+        varchar_34 sender_address
+        varchar_34 recipient_address
+        numeric_38_6 amount
+        varchar_78 amount_raw
+        varchar_20 token_symbol
+        varchar_34 contract_address
+        bigint block_number
+        timestamptz block_timestamp
+        int confirmations
+        enum confirmation_status
+        enum processing_status
+        enum source
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    webhook_events_log {
+        uuid id PK
+        jsonb raw_payload
+        timestamptz received_at
+        boolean processed
+        text error_message
+    }
+
+    monitoring_wallets ||--o{ transactions : "wallet_id"

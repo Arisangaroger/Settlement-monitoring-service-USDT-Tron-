@@ -1,0 +1,39 @@
+{
+  "name": "stablecoin-settlement-monitor",
+  "version": "0.1.0",
+  "private": true,
+  "description": "USDT TRC20 settlement monitoring service",
+  "scripts": {
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose down",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:studio": "prisma studio",
+    "db:seed": "tsx scripts/seed-phase1-sample.ts",
+    "db:test:duplicate": "tsx scripts/test-duplicate-insert.ts",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down",
+    "docker:reset": "docker compose down -v",
+    "docker:logs": "docker compose logs -f backend",
+    "backend:install": "npm install --prefix backend",
+    "backend:dev": "npm run start:dev --prefix backend",
+    "backend:build": "npm run db:generate && npm run build --prefix backend",
+    "backend:test": "npm run test --prefix backend",
+    "backend:test:e2e": "npm run test:e2e --prefix backend",
+    "frontend:install": "npm install --prefix frontend",
+    "frontend:dev": "npm run dev --prefix frontend",
+    "frontend:build": "npm run build --prefix frontend",
+    "frontend:test": "npm run test --prefix frontend"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "prisma": "^6.1.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.1.0",
+    "dotenv": "^16.4.7"
+  }
+}
