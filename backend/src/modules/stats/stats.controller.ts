@@ -1,7 +1,8 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { StatsSuccessResponseDto } from '../../common/dto/api-envelope.dto';
+import { ApiWalletScopedReadErrors } from '../../common/swagger/api-responses';
 import { successResponse } from '../../common/dto/api-envelope';
-import { StatsResponseDto } from './dto/stats-response.dto';
 import { StatsService } from './stats.service';
 import { WalletsService } from '../wallets/wallets.service';
 
@@ -17,9 +18,10 @@ export class StatsController {
   @ApiOperation({
     summary: 'Dashboard statistics',
     description:
-      'totalUsdtReceived sums confirmed transactions only (settled USDT). Scoped to the active monitored wallet.',
+      'Aggregates for the active monitored wallet. totalUsdtReceived sums confirmed transactions only (settled USDT).',
   })
-  @ApiOkResponse({ type: StatsResponseDto })
+  @ApiOkResponse({ type: StatsSuccessResponseDto })
+  @ApiWalletScopedReadErrors()
   async getStats() {
     const wallet = await this.wallets.getActiveWallet();
     const data = await this.statsService.getDashboardStats(wallet.id);

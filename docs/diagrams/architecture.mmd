@@ -1,38 +1,95 @@
+---
+title: Stablecoin Settlement Monitor — System Architecture
+---
 flowchart TB
-    TRON[("TRON Shasta Testnet")]
-
-    subgraph Providers["Blockchain access"]
-        TRONGRID["TronGrid API"]
-        TATUM["Tatum Notifications"]
+    %% Assessor note: polling always works in Docker; webhooks need a public URL (see npm run docker:demo).
+    %% ── External blockchain & providers ──────────────────────────────
+    subgraph EXT["External · TRON Shasta Testnet"]
+        direction LR
+        CHAIN[("On-chain USDT TRC20<br/>TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs")]
+        TRONGRID["TronGrid API<br/>api.shasta.trongrid.io"]
+        TATUM["Tatum Notifications<br/>ADDRESS_EVENT subscription"]
     end
 
-    subgraph Backend["NestJS Backend"]
-        WH["POST /api/webhooks/tron<br/>HMAC validated"]
-        RECON["Reconciliation Job<br/>every 5 min"]
-        CONF["Confirmation Updater<br/>every 12 sec"]
-        ING["IngestionService<br/>dedup on tx hash"]
-        REST["REST API + Swagger"]
+    subgraph TUNNEL["Optional public ingress · profile webhook-demo"]
+        CF["Cloudflare Quick Tunnel<br/>npm run docker:demo"]
     end
 
-    subgraph Storage["PostgreSQL"]
-        MW[("monitoring_wallets")]
-        TX[("transactions")]
-        LOG[("webhook_events_log")]
+    %% ── Docker Compose ───────────────────────────────────────────────
+    subgraph DOCKER["Docker Compose Stack"]
+        direction TB
+
+        subgraph UI["Presentation · frontend :3001"]
+            BROWSER["Browser"]
+            TRONLINK["TronLink Extension"]
+            DASH["Next.js Dashboard<br/>wallet connect · stats · tx table · hash search<br/>polls API every 20 s"]
+        end
+
+        subgraph API["NestJS Backend · backend :3000 · prefix /api"]
+            direction TB
+
+            subgraph INGEST["Hybrid ingestion pipeline"]
+                WH["TronWebhookController<br/>POST /webhooks/tron · GET /webhooks/tron/status<br/>HMAC x-payload-hash · logs payload"]
+                RECON["ReconciliationJob<br/>TronGrid TRC20 poll · source = poll<br/>default interval 300 s"]
+                CONF["ConfirmationUpdaterJob<br/>updates confirmations · pending → confirmed<br/>interval 12 s · threshold 19 blocks"]
+                ING["IngestionService<br/>normalize · validate · dedup on transaction_hash"]
+            end
+
+            subgraph REST["Read & config API · Swagger /docs"]
+                READ["TransactionsController · StatsController · WalletsController · HealthController<br/>GET /transactions · /transactions/search · /transactions/:id<br/>GET /stats · GET /health<br/>GET/PUT /wallets/monitored"]
+            end
+        end
+
+        subgraph DB["PostgreSQL · postgres :5432"]
+            direction LR
+            MW[("monitoring_wallets<br/>active wallet · poll watermark")]
+            TX[("transactions<br/>unique transaction_hash")]
+            LOG[("webhook_events_log<br/>raw webhook audit")]
+        end
     end
 
-    DASH["Next.js Dashboard<br/>port 3001"]
+    %% ── Chain to providers ───────────────────────────────────────────
+    CHAIN --> TRONGRID
+    CHAIN --> TATUM
 
-    TRON --> TRONGRID
-    TRON --> TATUM
-    TATUM -->|push| WH
-    TRONGRID -->|poll TRC20| RECON
+    %% ── Webhook fast path ────────────────────────────────────────────
+    TATUM -->|"HTTPS push (public URL)"| CF
+    CF --> WH
+    TATUM -.->|"requires tunnel or hosted backend"| WH
     WH --> ING
-    RECON --> ING
     WH --> LOG
+
+    %% ── Polling safety net ───────────────────────────────────────────
+    TRONGRID -->|"incoming USDT since watermark"| RECON
+    RECON --> ING
+
+    %% ── Confirmation tracking ──────────────────────────────────────
+    TRONGRID -->|"latest block height"| CONF
+    CONF --> TX
+
+    %% ── Persistence ────────────────────────────────────────────────
     ING --> TX
     ING --> MW
-    CONF --> TRONGRID
-    CONF --> TX
-    TX --> REST
-    MW --> REST
-    REST --> DASH
+
+    %% ── Read path ────────────────────────────────────────────────────
+    MW --> READ
+    TX --> READ
+    READ --> DASH
+
+    %% ── User ─────────────────────────────────────────────────────────
+    BROWSER --> DASH
+    TRONLINK -.->|"connect · approve site"| DASH
+    DASH -->|"NEXT_PUBLIC_API_URL"| READ
+
+    %% ── Styling ──────────────────────────────────────────────────────
+    classDef external fill:#fef3c7,stroke:#d97706,color:#1c1917,stroke-width:2px
+    classDef optional fill:#f5f5f4,stroke:#78716c,color:#44403c,stroke-width:1.5px,stroke-dasharray:6 4
+    classDef ui fill:#ecfdf5,stroke:#059669,color:#1c1917,stroke-width:2px
+    classDef backend fill:#eef2f0,stroke:#4a7c6f,color:#1c1917,stroke-width:2px
+    classDef storage fill:#eff6ff,stroke:#2563eb,color:#1c1917,stroke-width:2px
+
+    class CHAIN,TRONGRID,TATUM external
+    class CF optional
+    class BROWSER,TRONLINK,DASH ui
+    class WH,RECON,CONF,ING,READ backend
+    class MW,TX,LOG storage

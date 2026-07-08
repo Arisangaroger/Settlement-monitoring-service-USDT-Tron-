@@ -13,6 +13,9 @@
     "db:seed": "tsx scripts/seed-phase1-sample.ts",
     "db:test:duplicate": "tsx scripts/test-duplicate-insert.ts",
     "docker:up": "docker compose up --build",
+    "docker:demo": "docker compose --profile webhook-demo up --build",
+    "docker:up:webhooks": "docker compose --profile webhook-tunnel up --build",
+    "docker:up:webhooks:cf": "docker compose --profile webhook-tunnel-cf up --build",
     "docker:down": "docker compose down",
     "docker:reset": "docker compose down -v",
     "docker:logs": "docker compose logs -f backend",
@@ -21,10 +24,12 @@
     "backend:build": "npm run db:generate && npm run build --prefix backend",
     "backend:test": "npm run test --prefix backend",
     "backend:test:e2e": "npm run test:e2e --prefix backend",
+    "openapi:export": "npm run openapi:export --prefix backend",
     "frontend:install": "npm install --prefix frontend",
     "frontend:dev": "npm run dev --prefix frontend",
     "frontend:build": "npm run build --prefix frontend",
-    "frontend:test": "npm run test --prefix frontend"
+    "frontend:test": "npm run test --prefix frontend",
+    "webhook:register": "tsx scripts/register-tatum-webhook.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

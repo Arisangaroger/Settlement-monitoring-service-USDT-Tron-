@@ -1,3 +1,6 @@
+# Used by docker compose (build context is repository root).
+# backend/.dockerignore and frontend/.dockerignore are not used by compose builds.
+
 node_modules
 **/node_modules
 .git

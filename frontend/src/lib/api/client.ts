@@ -69,6 +69,7 @@ export async function getTransactions(
       page: params.page ?? 1,
       limit: params.limit ?? 10,
       confirmationStatus: params.confirmationStatus,
+      processingStatus: params.processingStatus,
       sortBy: params.sortBy ?? 'block_timestamp',
       order: params.order ?? 'desc',
     })}`,

@@ -1,5 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { HealthSuccessResponseDto } from '../../common/dto/api-envelope.dto';
+import { ApiCommonErrors } from '../../common/swagger/api-responses';
 import { successResponse } from '../../common/dto/api-envelope';
 import { AppConfigService } from '../config/app-config.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -14,7 +16,8 @@ export class HealthController {
 
   @Get()
   @ApiOperation({ summary: 'Service health check' })
-  @ApiOkResponse({ description: 'Service is healthy' })
+  @ApiOkResponse({ type: HealthSuccessResponseDto })
+  @ApiCommonErrors()
   async check() {
     await this.prisma.$queryRaw`SELECT 1`;
     const transactionCount = await this.prisma.transaction.count();

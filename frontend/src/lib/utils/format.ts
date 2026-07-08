@@ -38,6 +38,24 @@ export function formatAbsoluteTime(iso: string): string {
   }).format(new Date(iso));
 }
 
+export function formatDateTime(iso: string): string {
+  const date = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+}
+
+const TRON_SCAN_BASES: Record<string, string> = {
+  shasta: 'https://shasta.tronscan.org/#/transaction/',
+  nile: 'https://nile.tronscan.org/#/transaction/',
+  mainnet: 'https://tronscan.org/#/transaction/',
+};
+
+export function getTronScanTxUrl(hash: string): string {
+  const network = process.env.NEXT_PUBLIC_TRON_NETWORK ?? 'shasta';
+  const base = TRON_SCAN_BASES[network] ?? TRON_SCAN_BASES.shasta;
+  return `${base}${hash}`;
+}
+
 export async function copyToClipboard(text: string): Promise<boolean> {
   try {
     await navigator.clipboard.writeText(text);

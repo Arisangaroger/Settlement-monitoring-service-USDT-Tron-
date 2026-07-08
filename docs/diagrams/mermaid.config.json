@@ -4,7 +4,22 @@
     "primaryColor": "#eef2f0",
     "primaryTextColor": "#1c1917",
     "primaryBorderColor": "#4a7c6f",
-    "lineColor": "#78716c",
-    "fontFamily": "Outfit, system-ui, sans-serif"
+    "secondaryColor": "#eff6ff",
+    "secondaryTextColor": "#1c1917",
+    "secondaryBorderColor": "#2563eb",
+    "tertiaryColor": "#fef3c7",
+    "tertiaryTextColor": "#1c1917",
+    "tertiaryBorderColor": "#d97706",
+    "lineColor": "#57534e",
+    "fontFamily": "Segoe UI, Outfit, system-ui, sans-serif",
+    "fontSize": "15px"
+  },
+  "flowchart": {
+    "htmlLabels": true,
+    "curve": "basis",
+    "padding": 16
+  },
+  "er": {
+    "fontSize": 14
   }
 }

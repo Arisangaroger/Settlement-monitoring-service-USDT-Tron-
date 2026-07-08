@@ -1,0 +1,1118 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/wallets/monitored": {
+      "get": {
+        "description": "Returns the active wallet from the database. No redeploy needed when this changes via PUT.",
+        "operationId": "WalletsController_getMonitored",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MonitoredWalletSuccessResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No monitored wallet configured (connect TronLink or set MONITORED_WALLET_ADDRESS)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded (global throttler)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get the currently monitored wallet",
+        "tags": [
+          "wallets"
+        ]
+      },
+      "put": {
+        "description": "Updates the active monitored wallet at runtime. Resets sync watermarks for the new address.",
+        "operationId": "WalletsController_setMonitored",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetMonitoredWalletDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MonitoredWalletSuccessResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded (global throttler)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Set the wallet to monitor (public — connect via TronLink in dashboard)",
+        "tags": [
+          "wallets"
+        ]
+      }
+    },
+    "/api/transactions": {
+      "get": {
+        "description": "Returns transactions for the active monitored wallet only. Use filters and sorting for dashboard views.",
+        "operationId": "TransactionsController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/Object"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/Object"
+            }
+          },
+          {
+            "name": "confirmationStatus",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "pending",
+                "confirmed"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "processingStatus",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "new",
+                "processed",
+                "duplicate_ignored",
+                "failed"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "block_timestamp",
+              "enum": [
+                "block_timestamp",
+                "amount",
+                "created_at"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "desc",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedTransactionsResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No monitored wallet configured (connect TronLink or set MONITORED_WALLET_ADDRESS)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded (global throttler)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "List transactions (paginated, filterable)",
+        "tags": [
+          "transactions"
+        ]
+      }
+    },
+    "/api/transactions/search": {
+      "get": {
+        "description": "Looks up a transaction by on-chain hash within the active monitored wallet.",
+        "operationId": "TransactionsController_searchByHash",
+        "parameters": [
+          {
+            "name": "hash",
+            "required": true,
+            "in": "query",
+            "description": "64-character TRON transaction hash (hex)",
+            "schema": {
+              "example": "f096b4ca3f10109130ee5f5ad1f45b315f97f41c4a3a7ad5e9d02989111894e1",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionSuccessResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No monitored wallet configured, or resource not found for the active wallet",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded (global throttler)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Search transaction by hash",
+        "tags": [
+          "transactions"
+        ]
+      }
+    },
+    "/api/transactions/{id}": {
+      "get": {
+        "description": "Returns a single transaction by database id for the active monitored wallet.",
+        "operationId": "TransactionsController_getById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionSuccessResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No monitored wallet configured, or resource not found for the active wallet",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded (global throttler)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get transaction by internal UUID",
+        "tags": [
+          "transactions"
+        ]
+      }
+    },
+    "/api/stats": {
+      "get": {
+        "description": "Aggregates for the active monitored wallet. totalUsdtReceived sums confirmed transactions only (settled USDT).",
+        "operationId": "StatsController_getStats",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatsSuccessResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No monitored wallet configured (connect TronLink or set MONITORED_WALLET_ADDRESS)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded (global throttler)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Dashboard statistics",
+        "tags": [
+          "stats"
+        ]
+      }
+    },
+    "/api/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthSuccessResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded (global throttler)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Service health check",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/api/webhooks/tron/status": {
+      "get": {
+        "operationId": "TronWebhookController_status",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookStatusSuccessResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Webhook service status (is the receiver active + recent deliveries)",
+        "tags": [
+          "webhooks"
+        ]
+      }
+    },
+    "/api/webhooks/tron": {
+      "post": {
+        "operationId": "TronWebhookController_receive",
+        "parameters": [
+          {
+            "name": "x-payload-hash",
+            "required": false,
+            "in": "header",
+            "description": "Tatum HMAC SHA-512 signature (base64). Only validated when TATUM_WEBHOOK_HMAC_SECRET is configured; ignored otherwise.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Tatum ADDRESS_EVENT (token_transfer) payload",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "examples": {
+                "usdtTransferShasta": {
+                  "summary": "Sample USDT TRC20 transfer (Shasta)",
+                  "description": "Change txId to a unique 64-char hex value to insert a new row; reusing the same txId is safely deduplicated.",
+                  "value": {
+                    "kind": "token_transfer",
+                    "blockHash": "0000000003f58b485a04b80e00ea385d7258accafb62079a00ee17dff8f08656",
+                    "blockNumber": 66423624,
+                    "blockTimestamp": 1783470642000,
+                    "txId": "f247cdd9f1ad0e383791efb12ee1bcc789da7608ec87c0cbbf7a444f9590856e",
+                    "txTimestamp": 1783470636000,
+                    "from": "TY7qDg91GYtwFpyieenJb2F8rUvo7VPxbt",
+                    "to": "TFCJpYH7LzLSXTWFj7syybrMU4cHvuX39k",
+                    "value": "1",
+                    "contractAddress": "TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs",
+                    "currency": "TRON",
+                    "logIndex": 0,
+                    "tokenMetadata": {
+                      "type": "fungible",
+                      "symbol": "USDT",
+                      "name": "TetherToken",
+                      "decimals": 6
+                    },
+                    "chain": "tron-testnet"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookReceiveSuccessResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed or invalid webhook payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or missing x-payload-hash when TATUM_WEBHOOK_HMAC_SECRET is configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Receive TRON webhook payloads (provider push)",
+        "tags": [
+          "webhooks"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Stablecoin Settlement Monitor API",
+    "description": "REST API for USDT TRC20 transaction monitoring on TRON.\n\n**Response envelope:** successful responses use `{ \"data\": …, \"meta\"?: … }`.\nPaginated lists always include `meta` with `page`, `limit`, `total`, `totalPages`.\nErrors use `{ \"error\": { \"code\", \"message\" } }`.\n\n**Wallet scoping:** `GET /transactions`, `GET /stats`, and webhook ingestion\nare scoped to the active monitored wallet (`GET/PUT /wallets/monitored`).\n\nSee also: [docs/api-contract.md](../docs/api-contract.md) in the repository.",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "transactions",
+      "description": "USDT transfer history (scoped to active wallet)"
+    },
+    {
+      "name": "stats",
+      "description": "Dashboard aggregates (scoped to active wallet)"
+    },
+    {
+      "name": "wallets",
+      "description": "Active monitored wallet configuration"
+    },
+    {
+      "name": "health",
+      "description": "Service liveness and database connectivity"
+    },
+    {
+      "name": "webhooks",
+      "description": "Tatum ADDRESS_EVENT receiver (optional fast path)"
+    }
+  ],
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local development"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "MonitoredWalletResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "address": {
+            "type": "string",
+            "example": "TFCJpYH7LzLSXTWFj7syybrMU4cHvuX39k"
+          },
+          "label": {
+            "type": "object",
+            "nullable": true
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "lastSyncedBlock": {
+            "type": "object",
+            "nullable": true
+          },
+          "lastSyncedTimestamp": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "address",
+          "label",
+          "active",
+          "lastSyncedBlock",
+          "lastSyncedTimestamp"
+        ]
+      },
+      "MonitoredWalletSuccessResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/MonitoredWalletResponseDto"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "ApiErrorBodyDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "NOT_FOUND",
+            "description": "Machine-readable code: BAD_REQUEST, UNAUTHORIZED, NOT_FOUND, TOO_MANY_REQUESTS, INTERNAL_ERROR"
+          },
+          "message": {
+            "type": "string",
+            "example": "Transaction with id … not found"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
+      "ApiErrorResponseDto": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ApiErrorBodyDto"
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "SetMonitoredWalletDto": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string",
+            "example": "TFCJpYH7LzLSXTWFj7syybrMU4cHvuX39k",
+            "description": "TRON base58 address to monitor for incoming USDT"
+          }
+        },
+        "required": [
+          "address"
+        ]
+      },
+      "Object": {
+        "type": "object",
+        "properties": {}
+      },
+      "TransactionResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "6778b6b6-dc9c-444a-95a1-f37ea52d2095"
+          },
+          "transactionHash": {
+            "type": "string",
+            "example": "f096b4ca3f10109130ee5f5ad1f45b315f97f41c4a3a7ad5e9d02989111894e1"
+          },
+          "senderAddress": {
+            "type": "string",
+            "example": "TY7qDg91GYtwFpyieenJb2F8rUvo7VPxbt"
+          },
+          "recipientAddress": {
+            "type": "string",
+            "example": "TFCJpYH7LzLSXTWFj7syybrMU4cHvuX39k"
+          },
+          "amount": {
+            "type": "string",
+            "example": "1.000000",
+            "description": "Human-readable USDT amount"
+          },
+          "tokenSymbol": {
+            "type": "string",
+            "example": "USDT"
+          },
+          "contractAddress": {
+            "type": "string",
+            "example": "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf"
+          },
+          "blockNumber": {
+            "type": "string",
+            "example": "68985021"
+          },
+          "blockTimestamp": {
+            "type": "string",
+            "example": "2026-07-07T20:56:33.000Z"
+          },
+          "confirmations": {
+            "type": "number",
+            "example": 22
+          },
+          "confirmationStatus": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "confirmed"
+            ],
+            "example": "confirmed"
+          },
+          "processingStatus": {
+            "type": "string",
+            "enum": [
+              "new",
+              "processed",
+              "duplicate_ignored",
+              "failed"
+            ],
+            "example": "new"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "webhook",
+              "poll"
+            ],
+            "example": "poll"
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2026-07-07T21:38:52.826Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "example": "2026-07-07T21:38:52.826Z"
+          }
+        },
+        "required": [
+          "id",
+          "transactionHash",
+          "senderAddress",
+          "recipientAddress",
+          "amount",
+          "tokenSymbol",
+          "contractAddress",
+          "blockNumber",
+          "blockTimestamp",
+          "confirmations",
+          "confirmationStatus",
+          "processingStatus",
+          "source",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "PaginationMetaDto": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "limit": {
+            "type": "number",
+            "example": 20
+          },
+          "total": {
+            "type": "number",
+            "example": 42
+          },
+          "totalPages": {
+            "type": "number",
+            "example": 3
+          }
+        },
+        "required": [
+          "page",
+          "limit",
+          "total",
+          "totalPages"
+        ]
+      },
+      "PaginatedTransactionsResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransactionResponseDto"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMetaDto"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "TransactionSuccessResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/TransactionResponseDto"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "StatsResponseDto": {
+        "type": "object",
+        "properties": {
+          "totalTransactions": {
+            "type": "number",
+            "example": 10
+          },
+          "totalUsdtReceived": {
+            "type": "string",
+            "example": "15.500000",
+            "description": "Sum of amount for confirmed transactions only"
+          },
+          "confirmedCount": {
+            "type": "number",
+            "example": 8
+          },
+          "pendingCount": {
+            "type": "number",
+            "example": 2
+          }
+        },
+        "required": [
+          "totalTransactions",
+          "totalUsdtReceived",
+          "confirmedCount",
+          "pendingCount"
+        ]
+      },
+      "StatsSuccessResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/StatsResponseDto"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "HealthDataDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "ok"
+          },
+          "database": {
+            "type": "string",
+            "example": "up"
+          },
+          "network": {
+            "type": "string",
+            "example": "shasta"
+          },
+          "transactionCount": {
+            "type": "number",
+            "example": 10
+          },
+          "timestamp": {
+            "type": "string",
+            "example": "2026-07-08T12:00:00.000Z"
+          }
+        },
+        "required": [
+          "status",
+          "database",
+          "network",
+          "transactionCount",
+          "timestamp"
+        ]
+      },
+      "HealthSuccessResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/HealthDataDto"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "WebhookStatusDataDto": {
+        "type": "object",
+        "properties": {
+          "active": {
+            "type": "boolean",
+            "example": true
+          },
+          "endpoint": {
+            "type": "string",
+            "example": "/api/webhooks/tron"
+          },
+          "network": {
+            "type": "string",
+            "example": "shasta"
+          },
+          "monitoredWallet": {
+            "type": "string",
+            "example": "TFCJpYH7LzLSXTWFj7syybrMU4cHvuX39k"
+          },
+          "hmacValidation": {
+            "type": "string",
+            "enum": [
+              "enabled",
+              "disabled"
+            ],
+            "example": "disabled"
+          },
+          "totalReceived": {
+            "type": "number",
+            "example": 5
+          },
+          "processed": {
+            "type": "number",
+            "example": 4
+          },
+          "failed": {
+            "type": "number",
+            "example": 1
+          },
+          "lastReceivedAt": {
+            "type": "object",
+            "example": "2026-07-08T12:00:00.000Z",
+            "nullable": true
+          }
+        },
+        "required": [
+          "active",
+          "endpoint",
+          "network",
+          "monitoredWallet",
+          "hmacValidation",
+          "totalReceived",
+          "processed",
+          "failed",
+          "lastReceivedAt"
+        ]
+      },
+      "WebhookStatusSuccessResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/WebhookStatusDataDto"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "WebhookReceiveDataDto": {
+        "type": "object",
+        "properties": {
+          "received": {
+            "type": "boolean",
+            "example": true
+          },
+          "txId": {
+            "type": "string",
+            "example": "f247cdd9f1ad0e383791efb12ee1bcc789da7608ec87c0cbbf7a444f9590856e"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "inserted",
+              "duplicate_ignored",
+              "rejected",
+              "failed"
+            ],
+            "example": "inserted"
+          }
+        },
+        "required": [
+          "received",
+          "txId",
+          "status"
+        ]
+      },
+      "WebhookReceiveSuccessResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/WebhookReceiveDataDto"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      }
+    }
+  }
+}

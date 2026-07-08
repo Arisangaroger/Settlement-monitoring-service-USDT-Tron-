@@ -24,20 +24,33 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl \
+  && addgroup --system --gid 1001 nestjs \
+  && adduser --system --uid 1001 nestjs
 
 COPY package.json package-lock.json ./
 COPY prisma ./prisma
 COPY backend/package.json backend/package-lock.json ./backend/
 COPY backend/docker-entrypoint.sh ./backend/docker-entrypoint.sh
 
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/backend/node_modules ./backend/node_modules
+# Production deps only; Prisma CLI + generated client copied from builder for version parity
+RUN npm ci --omit=dev \
+  && npm ci --prefix backend --omit=dev \
+  && sed -i 's/\r$//' ./backend/docker-entrypoint.sh \
+  && chmod +x ./backend/docker-entrypoint.sh
+
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
+
 COPY --from=builder /app/backend/dist ./backend/dist
 
-RUN chmod +x ./backend/docker-entrypoint.sh
+RUN chown -R nestjs:nestjs /app
 
 WORKDIR /app/backend
+
+USER nestjs
 
 EXPOSE 3000
 

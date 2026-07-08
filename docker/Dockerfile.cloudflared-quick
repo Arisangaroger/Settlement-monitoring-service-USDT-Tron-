@@ -1,0 +1,11 @@
+FROM cloudflare/cloudflared:latest AS cloudflared-bin
+
+FROM alpine:3.21
+
+RUN apk add --no-cache ca-certificates
+
+COPY --from=cloudflared-bin /usr/local/bin/cloudflared /usr/local/bin/cloudflared
+COPY cloudflared-quick-tunnel.sh /quick-tunnel.sh
+RUN chmod +x /quick-tunnel.sh
+
+ENTRYPOINT ["/bin/sh", "/quick-tunnel.sh"]

@@ -17,6 +17,7 @@ npm run backend:dev
 
 - API base: `http://localhost:3000/api`
 - Swagger: `http://localhost:3000/docs`
+- Static OpenAPI: `../docs/openapi.json` (regenerate: `npm run openapi:export` from repo root or backend)
 
 Run `npm run db:generate` only after changing `prisma/schema.prisma`.
 
@@ -28,7 +29,10 @@ Run `npm run db:generate` only after changing `prisma/schema.prisma`.
 | GET | `/api/transactions/search?hash=` |
 | GET | `/api/transactions/:id` |
 | GET | `/api/stats` |
+| GET | `/api/wallets/monitored` |
+| PUT | `/api/wallets/monitored` |
 | GET | `/api/health` |
+| GET | `/api/webhooks/tron/status` |
 | POST | `/api/webhooks/tron` |
 
 See [docs/api-contract.md](../docs/api-contract.md).

@@ -1,14 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=Afacad:ital,wght@0,400..700;1,400..700&family=Outfit:wght@300..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: #f5f3ef;
-  --foreground: #1c1917;
-  --accent: #4a7c6f;
-  --accent-hover: #3d6a5f;
+  --background: #f3f5f4;
+  --foreground: #111827;
+  --accent: #4d6b5c;
+  --accent-hover: #435d50;
   --surface: #ffffff;
 }
 
@@ -22,21 +22,18 @@ html {
 
 body {
   color: var(--foreground);
-  background:
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(74, 124, 111, 0.08), transparent),
-    radial-gradient(ellipse 60% 40% at 100% 0%, rgba(120, 113, 108, 0.06), transparent),
-    var(--background);
-  font-family: 'Outfit', system-ui, sans-serif;
+  background: var(--background);
+  font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 .font-display {
-  font-family: 'Afacad', 'Outfit', system-ui, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
 }
 
 ::selection {
-  background: rgba(74, 124, 111, 0.2);
+  background: rgba(5, 150, 105, 0.15);
 }
 
 @media (prefers-reduced-motion: reduce) {

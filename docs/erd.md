@@ -1,7 +1,7 @@
 # Entity Relationship Diagram (ERD)
 
 Generated from `prisma/schema.prisma` and migration `20260707210000_init`.  
-**Last verified:** Phase 7 — matches live schema.
+**Last verified:** July 2026 — matches live schema and Prisma models.
 
 ## Diagram
 
@@ -13,11 +13,11 @@ Rendered image: [erd.png](diagrams/erd.png) · [erd.svg](diagrams/erd.svg) (sour
 erDiagram
     monitoring_wallets {
         uuid id PK
-        varchar_34 address UK "TRON base58"
-        varchar_100 label "nullable"
-        boolean active "default true"
-        bigint last_synced_block "nullable, poll watermark"
-        timestamptz last_synced_timestamp "nullable"
+        varchar_34 address UK "NOT NULL"
+        varchar_100 label "NULL"
+        boolean active "DEFAULT true"
+        bigint last_synced_block "NULL"
+        timestamptz last_synced_timestamp "NULL"
         timestamptz created_at
         timestamptz updated_at
     }
@@ -25,32 +25,32 @@ erDiagram
     transactions {
         uuid id PK
         uuid wallet_id FK
-        char_64 transaction_hash UK "hex, dedup key"
+        char_64 transaction_hash UK
         varchar_34 sender_address
         varchar_34 recipient_address
-        numeric_38_6 amount "human USDT"
-        varchar_78 amount_raw "integer string from chain"
+        numeric_38_6 amount "CHECK > 0"
+        varchar_78 amount_raw
         varchar_20 token_symbol
         varchar_34 contract_address
         bigint block_number
         timestamptz block_timestamp
-        int confirmations
-        enum confirmation_status "pending | confirmed"
-        enum processing_status "new | processed | duplicate_ignored | failed"
-        enum source "webhook | poll"
+        int confirmations "DEFAULT 0"
+        ConfirmationStatus confirmation_status "pending | confirmed"
+        ProcessingStatus processing_status "new | processed | duplicate_ignored | failed"
+        TransactionSource source "webhook | poll"
         timestamptz created_at
         timestamptz updated_at
     }
 
     webhook_events_log {
         uuid id PK
-        jsonb raw_payload "full provider body"
+        jsonb raw_payload
         timestamptz received_at
-        boolean processed "default false"
-        text error_message "nullable"
+        boolean processed "DEFAULT false"
+        text error_message "NULL"
     }
 
-    monitoring_wallets ||--o{ transactions : "wallet_id"
+    monitoring_wallets ||--o{ transactions : "wallet_id ON DELETE RESTRICT"
 ```
 
 ## Relationship summary

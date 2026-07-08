@@ -1,6 +1,6 @@
 # Stablecoin Settlement Monitor — Architecture
 
-This document reflects the **implemented** system (Phases 1–7). Provider: **Tatum** webhooks on Shasta testnet; **TronGrid** polling.
+This document reflects the **implemented** system. Verified against `prisma/schema.prisma`, NestJS modules, and `docker-compose.yml` (July 2026).
 
 Rendered image: [architecture.png](diagrams/architecture.png) · [architecture.svg](diagrams/architecture.svg) (source: [diagrams/architecture.mmd](diagrams/architecture.mmd)).
 

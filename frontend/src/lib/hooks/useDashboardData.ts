@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ApiClientError, getStats, getTransactions } from '@/lib/api/client';
 import type { PaginatedTransactions, Stats, StatusFilter } from '@/lib/api/types';
 
-const REFRESH_MS = 20_000;
+const REFRESH_MS = 10_000;
 
 interface DashboardState {
   stats: Stats | null;
@@ -51,11 +51,12 @@ export function useDashboardData(
 
       try {
         const confirmationStatus =
-          filter === 'all' ? undefined : filter;
+          filter === 'confirmed' || filter === 'pending' ? filter : undefined;
+        const processingStatus = filter === 'failed' ? 'failed' : undefined;
 
         const [stats, transactions] = await Promise.all([
           getStats(),
-          getTransactions({ page, limit, confirmationStatus }),
+          getTransactions({ page, limit, confirmationStatus, processingStatus }),
         ]);
 
         if (!mounted.current) return;

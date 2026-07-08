@@ -8,7 +8,6 @@ import {
   disconnectTronLink,
   getStoredTronLinkAddress,
   hasTronLinkSession,
-  isTronLinkInstalled,
   TronLinkError,
 } from '@/lib/tron/tronlink';
 import { truncateHash } from '@/lib/utils/format';
@@ -29,15 +28,10 @@ export function TronLinkConnect({
 }: TronLinkConnectProps) {
   const [connected, setConnected] = useState(false);
   const [tronAddress, setTronAddress] = useState<string | null>(null);
-  const [clientReady, setClientReady] = useState(false);
-  const [tronLinkInstalled, setTronLinkInstalled] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setClientReady(true);
-    setTronLinkInstalled(isTronLinkInstalled());
-
     if (!hasTronLinkSession()) return;
 
     const storedAddress = getStoredTronLinkAddress();
@@ -80,7 +74,6 @@ export function TronLinkConnect({
     onDisconnect?.();
   }
 
-  const tronLinkMissing = clientReady && !tronLinkInstalled;
   const displayError = error ?? walletError;
 
   return (
@@ -106,7 +99,7 @@ export function TronLinkConnect({
             variant="primary"
             className="!px-4 !py-2 text-sm"
             onClick={handleConnect}
-            disabled={connecting || tronLinkMissing}
+            disabled={connecting}
             aria-label="Connect TronLink wallet"
           >
             {connecting ? 'Connecting…' : 'Connect wallet'}
@@ -121,12 +114,6 @@ export function TronLinkConnect({
       ) : monitored && tronAddress === monitored.address ? (
         <p className="max-w-xs text-right text-xs text-stone-500">
           Dashboard is monitoring this wallet.
-        </p>
-      ) : null}
-
-      {tronLinkMissing ? (
-        <p className="max-w-xs text-right text-xs text-amber-700">
-          Install the TronLink browser extension, then refresh this page.
         </p>
       ) : null}
 

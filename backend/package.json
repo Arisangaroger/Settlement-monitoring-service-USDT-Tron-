@@ -10,7 +10,8 @@
     "start:prod": "node dist/main",
     "test": "jest",
     "test:e2e": "jest --config jest-e2e.config.js",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "openapi:export": "ts-node scripts/export-openapi.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.15",

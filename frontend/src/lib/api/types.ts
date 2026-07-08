@@ -47,6 +47,7 @@ export interface ListTransactionsParams {
   page?: number;
   limit?: number;
   confirmationStatus?: ConfirmationStatus;
+  processingStatus?: ProcessingStatus;
   sortBy?: 'block_timestamp' | 'amount' | 'created_at';
   order?: 'asc' | 'desc';
 }
@@ -65,4 +66,4 @@ export interface MonitoredWallet {
   lastSyncedTimestamp: string | null;
 }
 
-export type StatusFilter = 'all' | ConfirmationStatus;
+export type StatusFilter = 'all' | ConfirmationStatus | 'failed';

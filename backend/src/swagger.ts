@@ -1,29 +1,49 @@
 import { writeFileSync } from 'fs';
 import { resolve } from 'path';
 import { INestApplication } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 
-export function setupSwagger(app: INestApplication): void {
+const API_DESCRIPTION = [
+  'REST API for USDT TRC20 transaction monitoring on TRON.',
+  '',
+  '**Response envelope:** successful responses use `{ "data": …, "meta"?: … }`.',
+  'Paginated lists always include `meta` with `page`, `limit`, `total`, `totalPages`.',
+  'Errors use `{ "error": { "code", "message" } }`.',
+  '',
+  '**Wallet scoping:** `GET /transactions`, `GET /stats`, and webhook ingestion',
+  'are scoped to the active monitored wallet (`GET/PUT /wallets/monitored`).',
+  '',
+  'See also: [docs/api-contract.md](../docs/api-contract.md) in the repository.',
+].join('\n');
+
+export function buildOpenApiDocument(app: INestApplication): OpenAPIObject {
+  const port = process.env.PORT ?? '3000';
+
   const config = new DocumentBuilder()
     .setTitle('Stablecoin Settlement Monitor API')
-    .setDescription(
-      'REST API for USDT TRC20 transaction monitoring on TRON',
-    )
+    .setDescription(API_DESCRIPTION)
     .setVersion('1.0')
-    .addTag('transactions')
-    .addTag('stats')
-    .addTag('health')
-    .addTag('wallets')
-    .addTag('webhooks')
+    .addServer(`http://localhost:${port}`, 'Local development')
+    .addTag('transactions', 'USDT transfer history (scoped to active wallet)')
+    .addTag('stats', 'Dashboard aggregates (scoped to active wallet)')
+    .addTag('wallets', 'Active monitored wallet configuration')
+    .addTag('health', 'Service liveness and database connectivity')
+    .addTag('webhooks', 'Tatum ADDRESS_EVENT receiver (optional fast path)')
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);
+  return SwaggerModule.createDocument(app, config);
+}
+
+export function setupSwagger(app: INestApplication): void {
+  const document = buildOpenApiDocument(app);
   SwaggerModule.setup('docs', app, document);
 
-  // Export a static spec for evaluators who prefer reviewing a file over
-  // running the app. Opt-in so it never writes in the container/production.
   if (process.env.EXPORT_OPENAPI === 'true') {
-    const target = resolve(process.cwd(), '..', 'docs', 'openapi.json');
-    writeFileSync(target, JSON.stringify(document, null, 2));
+    writeOpenApiFile(document);
   }
+}
+
+export function writeOpenApiFile(document: OpenAPIObject): void {
+  const target = resolve(process.cwd(), '..', 'docs', 'openapi.json');
+  writeFileSync(target, JSON.stringify(document, null, 2));
 }

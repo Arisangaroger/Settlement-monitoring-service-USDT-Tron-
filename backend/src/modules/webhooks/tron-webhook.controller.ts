@@ -17,6 +17,11 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
+import {
+  WebhookReceiveSuccessResponseDto,
+  WebhookStatusSuccessResponseDto,
+} from '../../common/dto/api-envelope.dto';
+import { ApiWebhookErrors } from '../../common/swagger/api-responses';
 import { successResponse } from '../../common/dto/api-envelope';
 import { TATUM_PAYLOAD_HASH_HEADER } from './tatum-webhook-auth';
 import { TatumWebhookService } from './tatum-webhook.service';
@@ -31,7 +36,7 @@ export class TronWebhookController {
   @ApiOperation({
     summary: 'Webhook service status (is the receiver active + recent deliveries)',
   })
-  @ApiOkResponse({ description: 'Webhook receiver is active' })
+  @ApiOkResponse({ type: WebhookStatusSuccessResponseDto })
   async status() {
     return successResponse(await this.tatumWebhook.getStatus());
   }
@@ -79,7 +84,8 @@ export class TronWebhookController {
       },
     },
   })
-  @ApiOkResponse({ description: 'Payload accepted for processing' })
+  @ApiOkResponse({ type: WebhookReceiveSuccessResponseDto })
+  @ApiWebhookErrors()
   async receive(
     @Body() payload: Record<string, unknown>,
     @Headers(TATUM_PAYLOAD_HASH_HEADER) payloadHash?: string,

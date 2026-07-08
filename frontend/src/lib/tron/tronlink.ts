@@ -56,7 +56,7 @@ function readTronWebAddress(): string | null {
   if (fromGlobal) return fromGlobal;
 
   const providerTronWeb = window.tron?.tronWeb;
-  if (providerTronWeb && providerTronWeb !== false) {
+  if (providerTronWeb && typeof providerTronWeb === 'object') {
     return normalizeAddress(providerTronWeb.defaultAddress?.base58);
   }
 
@@ -106,20 +106,22 @@ async function waitForTronWebAddress(timeoutMs = 3000): Promise<string | null> {
 }
 
 async function requestTronAccounts(): Promise<string | null> {
-  const provider = getTronProvider();
-  if (!provider?.request) return null;
+  await waitForTronLinkProvider(10000);
 
-  try {
-    const modern = await provider.request({ method: 'eth_requestAccounts' });
-    const fromModern = parseAccountsResponse(modern);
-    if (fromModern) return fromModern;
-  } catch (err) {
-    const message =
-      err && typeof err === 'object' && 'message' in err
-        ? String((err as { message?: unknown }).message)
-        : null;
-    if (message && !message.toLowerCase().includes('reject')) {
-      // Non-rejection errors may still work via legacy request below.
+  const provider = getTronProvider();
+  if (provider?.request) {
+    try {
+      const modern = await provider.request({ method: 'eth_requestAccounts' });
+      const fromModern = parseAccountsResponse(modern);
+      if (fromModern) return fromModern;
+    } catch (err) {
+      const message =
+        err && typeof err === 'object' && 'message' in err
+          ? String((err as { message?: unknown }).message)
+          : null;
+      if (message && !message.toLowerCase().includes('reject')) {
+        // Non-rejection errors may still work via legacy request below.
+      }
     }
   }
 
@@ -185,7 +187,7 @@ export interface ResolveTronLinkAddressOptions {
 export async function resolveTronLinkAddress(
   options: ResolveTronLinkAddressOptions = {},
 ): Promise<string | null> {
-  if (typeof window === 'undefined' || !isTronLinkInstalled()) return null;
+  if (typeof window === 'undefined' || !hasTronLinkProvider()) return null;
 
   const passive = await waitForTronWebAddress(2000);
   if (passive) return passive;
@@ -200,16 +202,16 @@ export async function connectTronLink(): Promise<string> {
     throw new TronLinkError('TronLink is only available in the browser');
   }
 
-  if (!isTronLinkInstalled()) {
-    throw new TronLinkError(
-      'TronLink extension not found. Install TronLink and refresh this page.',
-    );
-  }
-
   const address = await requestTronAccounts();
   if (!address) {
+    const onLocalhost =
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1';
+
     throw new TronLinkError(
-      'No TronLink account is available. Unlock TronLink, select an account, approve this site, then try again.',
+      onLocalhost
+        ? 'Could not connect TronLink. Unlock the extension, select an account, approve this site, then try again. Open the app at http://localhost:3001 (not 127.0.0.1) if the issue persists.'
+        : 'Could not connect TronLink. Unlock the extension, approve this site, then try again.',
     );
   }
 
@@ -228,9 +230,83 @@ export function getConnectedTronAddress(): string | null {
   return readTronWebAddress();
 }
 
-export function isTronLinkInstalled(): boolean {
+const TRONLINK_INIT_EVENT = 'tronLink#initialized';
+const TRONLINK_MESSAGE_ACTIONS = new Set([
+  'acceptWeb',
+  'accountsChanged',
+  'connectWeb',
+  'disconnect',
+  'disconnectWeb',
+  'rejectWeb',
+  'setAccount',
+  'setNode',
+]);
+const PROVIDER_POLL_MS = 100;
+const DEFAULT_PROVIDER_WAIT_MS = 10000;
+
+let tronLinkObservedViaMessage = false;
+
+function noteTronLinkActivity(): void {
+  tronLinkObservedViaMessage = true;
+}
+
+function hasTronLinkProvider(): boolean {
   if (typeof window === 'undefined') return false;
-  return Boolean(window.tronLink || window.tron);
+  if (window.tronLink || window.tron) return true;
+  // Some TronLink builds expose tronWeb before tronLink#initialized fires.
+  if (window.tronWeb && typeof window.tronWeb === 'object') return true;
+  if (tronLinkObservedViaMessage) return true;
+  return false;
+}
+
+/** Wait for TronLink to inject its provider (it loads asynchronously). */
+export async function waitForTronLinkProvider(
+  timeoutMs = DEFAULT_PROVIDER_WAIT_MS,
+): Promise<boolean> {
+  if (typeof window === 'undefined') return false;
+  if (hasTronLinkProvider()) return true;
+
+  return new Promise((resolve) => {
+    let settled = false;
+
+    const finish = (found: boolean) => {
+      if (settled) return;
+      settled = true;
+      window.clearInterval(pollId);
+      window.clearTimeout(timerId);
+      window.removeEventListener(TRONLINK_INIT_EVENT, onInit);
+      window.removeEventListener('message', onMessage);
+      resolve(found);
+    };
+
+    const onInit = () => finish(hasTronLinkProvider());
+
+    const onMessage = (event: MessageEvent) => {
+      const action = event.data?.message?.action;
+      if (typeof action !== 'string' || !TRONLINK_MESSAGE_ACTIONS.has(action)) {
+        return;
+      }
+
+      noteTronLinkActivity();
+      if (hasTronLinkProvider()) finish(true);
+    };
+
+    window.addEventListener(TRONLINK_INIT_EVENT, onInit);
+    window.addEventListener('message', onMessage);
+
+    const pollId = window.setInterval(() => {
+      if (hasTronLinkProvider()) finish(true);
+    }, PROVIDER_POLL_MS);
+
+    const timerId = window.setTimeout(
+      () => finish(hasTronLinkProvider()),
+      timeoutMs,
+    );
+  });
+}
+
+export function isTronLinkInstalled(): boolean {
+  return hasTronLinkProvider();
 }
 
 export type TronAccountChangeHandler = (address: string | null) => void;

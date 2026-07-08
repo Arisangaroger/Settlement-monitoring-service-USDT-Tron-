@@ -7,9 +7,9 @@ services:
       # Exposed for optional direct inspection (psql, Prisma Studio)
       - "${POSTGRES_HOST_PORT:-5433}:5432"
     environment:
-      POSTGRES_USER: settlement
-      POSTGRES_PASSWORD: settlement
-      POSTGRES_DB: settlement_monitor
+      POSTGRES_USER: ${POSTGRES_USER:-settlement}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-settlement}
+      POSTGRES_DB: ${POSTGRES_DB:-settlement_monitor}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -31,10 +31,10 @@ services:
       - .env
     environment:
       # Override host-local DATABASE_URL for in-network Postgres
-      DATABASE_URL: postgresql://settlement:settlement@postgres:5432/settlement_monitor?schema=public
+      DATABASE_URL: postgresql://${POSTGRES_USER:-settlement}:${POSTGRES_PASSWORD:-settlement}@postgres:5432/${POSTGRES_DB:-settlement_monitor}?schema=public
       NODE_ENV: production
       PORT: 3000
-      CORS_ORIGIN: http://localhost:3001
+      CORS_ORIGIN: http://localhost:${FRONTEND_PORT:-3001}
     ports:
       - "${BACKEND_PORT:-3000}:3000"
     healthcheck:
@@ -66,6 +66,82 @@ services:
       HOSTNAME: 0.0.0.0
     ports:
       - "${FRONTEND_PORT:-3001}:3001"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3001').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
+
+  # Optional stable webhook tunnel — ngrok (recommended). See docs/webhook-tunnel-setup.md
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: settlement-ngrok
+    profiles: ["webhook-tunnel"]
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN:-}
+    command:
+      - http
+      - --url=${NGROK_DOMAIN:-set-NGROK_DOMAIN-in-env}
+      - backend:3000
+    ports:
+      - "4040:4040"
+
+  # Optional stable webhook tunnel — Cloudflare Named Tunnel
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: settlement-cloudflared
+    profiles: ["webhook-tunnel-cf"]
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    command:
+      - tunnel
+      - --no-autoupdate
+      - run
+      - --token
+      - ${CLOUDFLARE_TUNNEL_TOKEN:-}
+
+  # Demo: temporary webhook tunnel (no ngrok account). See npm run docker:demo
+  cloudflared-quick:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.cloudflared-quick
+    container_name: settlement-cloudflared-quick
+    profiles: ["webhook-demo"]
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    volumes:
+      - tunnel_shared:/shared
+
+  webhook-register:
+    image: curlimages/curl:8.12.1
+    container_name: settlement-webhook-register
+    profiles: ["webhook-demo"]
+    depends_on:
+      cloudflared-quick:
+        condition: service_started
+    env_file:
+      - .env
+    volumes:
+      - tunnel_shared:/shared
+      - ./docker/wait-and-register-webhook.sh:/register.sh:ro
+    entrypoint: ["/bin/sh", "/register.sh"]
+    restart: "no"
 
 volumes:
   postgres_data:
+  tunnel_shared:
