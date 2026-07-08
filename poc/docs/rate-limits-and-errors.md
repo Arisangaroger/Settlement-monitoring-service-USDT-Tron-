@@ -48,12 +48,12 @@ Application handling (Phase 3):
 
 | Assumption | Value |
 |------------|-------|
-| Poll interval | 5 minutes (300s) |
+| Poll interval | 4 minutes (240s) |
 | API calls per poll | ~1–2 |
 | Daily calls | ~288–576 |
 | Free tier at 15 req/s | Theoretical max ~1.3M req/day |
 
-**Conclusion:** 5-minute reconciliation uses **< 0.05%** of daily capacity for a single wallet — conservative and safe.
+**Conclusion:** 4-minute reconciliation uses **< 0.05%** of daily capacity for a single wallet — conservative and safe.
 
 Confirmation updater (every 12s) uses **local DB + one `getnowblock` call per tick** (~7,200/day) — still well within limits.
 

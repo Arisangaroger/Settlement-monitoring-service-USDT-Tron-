@@ -22,7 +22,7 @@ flowchart TB
         subgraph UI["Presentation · frontend :3001"]
             BROWSER["Browser"]
             TRONLINK["TronLink Extension"]
-            DASH["Next.js Dashboard<br/>wallet connect · stats · tx table · hash search<br/>polls API every 20 s"]
+            DASH["Next.js Dashboard<br/>wallet connect · stats · tx table · hash search<br/>polls API every 10 s"]
         end
 
         subgraph API["NestJS Backend · backend :3000 · prefix /api"]
@@ -30,7 +30,7 @@ flowchart TB
 
             subgraph INGEST["Hybrid ingestion pipeline"]
                 WH["TronWebhookController<br/>POST /webhooks/tron · GET /webhooks/tron/status<br/>HMAC x-payload-hash · logs payload"]
-                RECON["ReconciliationJob<br/>TronGrid TRC20 poll · source = poll<br/>default interval 300 s"]
+                RECON["ReconciliationJob<br/>TronGrid TRC20 poll · source = poll<br/>default interval 240 s"]
                 CONF["ConfirmationUpdaterJob<br/>updates confirmations · pending → confirmed<br/>interval 12 s · threshold 19 blocks"]
                 ING["IngestionService<br/>normalize · validate · dedup on transaction_hash"]
             end

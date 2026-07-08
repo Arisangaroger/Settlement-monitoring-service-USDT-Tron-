@@ -89,7 +89,7 @@ Optional:
 
 | Variable | Default |
 |----------|---------|
-| `RECONCILIATION_INTERVAL_MS` | 300000 (5 min) |
+| `RECONCILIATION_INTERVAL_MS` | 240000 (4 min) |
 | `CONFIRMATION_CHECK_INTERVAL_MS` | 12000 (12 sec) |
 | `CONFIRMATION_THRESHOLD` | 19 |
 | `TATUM_WEBHOOK_HMAC_SECRET` | *(unset = HMAC disabled for local curl tests)* |

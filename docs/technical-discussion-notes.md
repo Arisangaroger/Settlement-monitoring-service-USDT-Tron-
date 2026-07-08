@@ -24,7 +24,7 @@ Monitors one TRON wallet for incoming USDT (TRC20), ingests via **webhook + poll
 
 | Job | Default | Why |
 |-----|---------|-----|
-| Reconciliation | 5 min | TronGrid rate limits; sufficient for assessment |
+| Reconciliation | 4 min | TronGrid rate limits; sufficient for assessment |
 | Confirmation updater | 12 sec | Blocks ~3s on TRON; pending txs update quickly |
 | Threshold | 19 confirmations | Production-minded custodial pattern |
 
@@ -58,6 +58,6 @@ Monitors one TRON wallet for incoming USDT (TRC20), ingests via **webhook + poll
 1. `docker compose up --build`
 2. Open dashboard http://localhost:3001
 3. Send test USDT on Shasta to monitored wallet
-4. Watch tx appear (poll within 5 min, or webhook if configured)
+4. Watch tx appear (poll within 4 min, or webhook if configured)
 5. Confirm status flips pending → confirmed
 6. Search by hash in dashboard

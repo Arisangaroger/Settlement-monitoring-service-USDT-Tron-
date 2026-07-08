@@ -18,7 +18,7 @@ flowchart TB
 
     subgraph Ingestion["Ingestion layer (NestJS backend)"]
         WH["POST /api/webhooks/tron<br/>HMAC validated"]
-        RECON["Reconciliation job<br/>every 5 min"]
+        RECON["Reconciliation job<br/>every 4 min"]
         CONF["Confirmation updater<br/>every 12 sec"]
         ING["IngestionService<br/>dedup via unique tx hash"]
     end
@@ -99,11 +99,11 @@ sequenceDiagram
 | Component | Role | Interval / trigger |
 |-----------|------|-------------------|
 | **Tatum webhook** | Push near-real-time token transfers | On-chain event |
-| **Reconciliation job** | Poll TronGrid for missed events | 300s default |
+| **Reconciliation job** | Poll TronGrid for missed events | 240s default |
 | **Confirmation updater** | Advance pending → confirmed | 12s default |
 | **IngestionService** | Validate, dedup, persist | Both paths |
 | **REST API** | Read model for dashboard | On request |
-| **Dashboard** | Stats, table, search, filters | Poll API every 20s |
+| **Dashboard** | Stats, table, search, filters | Poll API every 10s |
 
 ## Deployment (Docker Compose)
 

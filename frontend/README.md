@@ -28,7 +28,7 @@ NEXT_PUBLIC_API_URL=http://localhost:3000/api
 - Paginated transaction table with mobile card layout
 - Filter: All / Confirmed / Pending
 - Search by transaction hash
-- Auto-refresh every 20 seconds + manual Refresh button
+- Auto-refresh every 10 seconds
 - Loading skeletons and error states
 
 ## Tests

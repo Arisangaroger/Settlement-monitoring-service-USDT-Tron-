@@ -67,7 +67,7 @@ This is how the app is meant to be used: near-instant webhook detection **and** 
 
 ### Option 2 — Polling only (simplest local setup)
 
-Good if you just want the stack running without tunnel setup. Transfers still show up — usually within ~3 minutes.
+Good if you just want the stack running without tunnel setup. Transfers still show up — usually within ~4 minutes.
 
 - Copy `.env.example` → `.env` and set `TRONGRID_API_KEY`
 - Run `docker compose up --build`
@@ -157,7 +157,7 @@ Database migrations run automatically when the backend starts.
 1. Open the **dashboard** — you should see the USDT Dashboard header.
 2. Click **Connect wallet** (TronLink on Shasta) to choose the address to monitor.
 3. Send a small **test USDT** transfer to your monitored wallet on Shasta.
-4. Within about **3 minutes**, the payment appears in the transaction table (polling interval).
+4. Within about **4 minutes**, the payment appears in the transaction table (polling interval).
 5. Use the **hash search** box to find it by transaction ID.
 6. Watch status change from **Pending** → **Confirmed** (usually within a few minutes).
 
@@ -204,7 +204,7 @@ Watch logs for `TEMP WEBHOOK BASE URL`, connect TronLink, send test USDT — it 
 - **Single pipeline** — both paths normalize to the same shape before `IngestionService`
 - **Amounts** — `DECIMAL(38,6)` + raw integer string; no float precision loss
 - **Dedup** — unique `transaction_hash`; concurrent webhook + poll handled via insert-on-conflict
-- **Jobs** — reconciliation every ~5 min; confirmation check every ~12 s; 19-block threshold
+- **Jobs** — reconciliation every ~4 min; confirmation check every ~12 s; 19-block threshold
 - **Wallet** — set via TronLink in the dashboard; `webhook_events_log` audits every delivery
 
 **Known limits**
@@ -230,7 +230,7 @@ Full detail: [docs/submission-checklist.md](docs/submission-checklist.md) · [do
 
 - **No wallet connected** — click **Connect wallet** in the header (TronLink on Shasta).
 - **No USDT sent yet** — send a test USDT transfer on **Shasta** to your monitored address (not mainnet).
-- **Wait for polling** — default reconciliation runs every **5 minutes**. Check backend logs: `docker compose logs -f backend`.
+- **Wait for polling** — default reconciliation runs every **4 minutes**. Check backend logs: `docker compose logs -f backend`.
 - **Wrong network** — `.env` must use `TRON_NETWORK=shasta` and a Shasta wallet address.
 - **API unhealthy** — open http://localhost:3000/api/health ; if it fails, Postgres may still be starting. Wait 30s and retry.
 
@@ -278,7 +278,7 @@ Requires Postgres running (uses the same bootstrap as the backend).
 
 The backend uses **two ingestion paths** into one pipeline:
 
-- **Polling** — `ReconciliationJob` asks TronGrid for new incoming USDT every ~3 minutes.
+- **Polling** — `ReconciliationJob` asks TronGrid for new incoming USDT every ~4 minutes.
 - **Webhooks** — Tatum pushes events to `POST /api/webhooks/tron` when a public URL exists.
 
 Both paths normalize into `IngestionService`, deduplicate on `transaction_hash`, and store in PostgreSQL. A **confirmation job** updates Pending → Confirmed as blocks accumulate.

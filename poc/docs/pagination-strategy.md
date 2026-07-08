@@ -1,6 +1,6 @@
 # Pagination & Incremental Fetch Strategy
 
-For Phase 3 reconciliation polling (every 5 minutes).
+For Phase 3 reconciliation polling (every 4 minutes).
 
 ## TronGrid pagination mechanism
 
@@ -66,7 +66,7 @@ Re-polling overlapping timestamps (e.g. after a crash before watermark commit) i
 
 ## Rate budget justification
 
-With 5-minute polling interval:
+With 4-minute polling interval:
 
 - 1 request minimum per poll (usually 1–2 with pagination)
 - 288 polls/day → ~288–576 API calls/day for one wallet
