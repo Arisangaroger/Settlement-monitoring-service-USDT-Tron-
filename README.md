@@ -1,7 +1,6 @@
 # Stablecoin Settlement Monitor
 
-<!-- Replace OWNER/REPO after pushing to GitHub to activate the badge. -->
-[![CI](https://github.com/OWNER/REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/REPO/actions/workflows/ci.yml)
+[![CI](https://github.com/Arisangaroger/Settlement-monitoring-service-USDT-Tron-/actions/workflows/ci.yml/badge.svg)](https://github.com/Arisangaroger/Settlement-monitoring-service-USDT-Tron-/actions/workflows/ci.yml)
 
 Monitors incoming **USDT (TRC20)** transfers on **TRON Shasta testnet** for a configured wallet. Detects payments via **TronGrid polling** (required) and **Tatum webhooks** (optional fast path), stores them in PostgreSQL with deduplication, and exposes a REST API plus a Next.js dashboard.
 
